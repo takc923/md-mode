@@ -1,10 +1,11 @@
-window.addEventListener("load", function(){
+document.onreadystatechange = function () {
+    if (document.readyState != "complete") return;
     console.log("loaded");
     var textareas = document.getElementsByTagName("textarea");
     for (var i = 0; i < textareas.length; i++) {
         textareas[i].addEventListener("keypress", mdmode);
     }
-});
+}
 
 function mdmode(evt) {
     if (this.selectionStart != this.selectionEnd) {
