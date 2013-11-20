@@ -1,11 +1,9 @@
-document.onreadystatechange = function () {
-    console.log(document.readyState);
-    if (document.readyState != "complete") return;
+onload(function () {
     var textareas = document.getElementsByTagName("textarea");
     for (var i = 0; i < textareas.length; i++) {
-        textareas[i].addEventListener("keypress", mdmode);
+        textareas[i].onkeypress = mdmode;
     }
-}
+});
 
 function mdmode(evt) {
     if (this.selectionStart != this.selectionEnd) {
@@ -13,28 +11,53 @@ function mdmode(evt) {
         return;
     }
 
-    if (evt.keyCode == 9) {
-        var cursor = this.selectionStart;
-        var hol = getHeadOfLine(this.value, cursor);
+    var cursor = this.selectionStart;
+    var lineInfo = getLineInfo(this.value, cursor);
+    var textEvent = document.createEvent("TextEvent");
+    if (evt.keyCode == 9) { // TAB or C-i
+        if (lineInfo.length === 0) return;
 
-        if (hol == -1) return;
+        this.setSelectionRange(lineInfo.hol, lineInfo.hol);
 
-        this.setSelectionRange(hol, hol);
-
-        var textEvent = document.createEvent("TextEvent");
         textEvent.initTextEvent("textInput", true, true, null, "    ");
         this.dispatchEvent(textEvent);
 
         this.setSelectionRange(cursor + 4, cursor + 4);
+    } else if (evt.keyCode == 13) { // Enter
+        if (lineInfo.length === 0) return;
+        var match = lineInfo.text.match(/^(\s*[*+-] ).*$/);
+        if (match == null) return;
+
+        textEvent.initTextEvent("textInput", true, true, null, "\n" + match[1]);
+        this.dispatchEvent(textEvent);
+        return false;
     }
 }
 
-function getHeadOfLine(text, cursor) {
-    var re = /^[ \t]*[*+-].*$/gm;
+function getLineInfo(text, cursor) {
+    var re = /^.*$/gm;
+    // todo: refactor
     for (var match = re.exec(text); re.lastIndex != 0; match = re.exec(text)) {
         var hol = re.lastIndex - match[0].length;
         var eol = re.lastIndex;
-        if (hol <= cursor && cursor <= eol) return hol;
+        if (hol <= cursor && cursor <= eol){
+            return {
+                hol: hol,
+                eol: eol,
+                text: match[0]
+            };
+        }
+        re.lastIndex++;
     }
-    return -1;
+    return {};
+}
+
+function onload(callback) {
+    var id = setInterval(function() {
+        if (document.readyState == "complete" // load
+           || document.readyState == "interactive") { // DOMContentLoaded
+            callback();
+            clearInterval(id);
+        }
+    }, 500);
 }
