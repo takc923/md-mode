@@ -8,14 +8,14 @@ onload(function () {
 function mdmode(evt) {
     if (this.selectionStart != this.selectionEnd) {
         console.error("selection mode is not implemented yet...");
-        return;
+        return true;
     }
 
     var cursor = this.selectionStart;
     var lineInfo = getLineInfo(this.value, cursor);
     var textEvent = document.createEvent("TextEvent");
     if (evt.keyCode == 9) { // TAB or C-i
-        if (lineInfo.length === 0) return;
+        if (lineInfo.length === 0) return true;
 
         this.setSelectionRange(lineInfo.hol, lineInfo.hol);
 
@@ -24,9 +24,9 @@ function mdmode(evt) {
 
         this.setSelectionRange(cursor + 4, cursor + 4);
     } else if (evt.keyCode == 13) { // Enter
-        if (lineInfo.length === 0) return;
+        if (lineInfo.length === 0) return true;
         var match = lineInfo.text.match(/^(\s*[*+-] ).*$/);
-        if (match == null) return;
+        if (match == null) return true;
 
         textEvent.initTextEvent("textInput", true, true, null, "\n" + match[1]);
         this.dispatchEvent(textEvent);
