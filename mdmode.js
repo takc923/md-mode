@@ -13,9 +13,10 @@ function mdmode(evt) {
 
     var cursor = this.selectionStart;
     var lineInfo = getLineInfo(this.value, cursor);
+    if (lineInfo.length === 0) return true;
+
     var textEvent = document.createEvent("TextEvent");
     if (evt.keyCode == 9) { // TAB or C-i
-        if (lineInfo.length === 0) return true;
 
         this.setSelectionRange(lineInfo.hol, lineInfo.hol);
 
@@ -23,8 +24,16 @@ function mdmode(evt) {
         this.dispatchEvent(textEvent);
 
         this.setSelectionRange(cursor + 4, cursor + 4);
+    } else if (evt.keyCode == 21) { // C-u
+        var match = lineInfo.text.match(/^(    \s*[*+-] ).*$/);
+        if (match == null) return true;
+
+        this.setSelectionRange(lineInfo.hol, lineInfo.hol + 5);
+        textEvent.initTextEvent("textInput", true, true, null, this.value[lineInfo.hol + 4]);
+        this.dispatchEvent(textEvent);
+        var newCursorAt = (cursor - 4 < lineInfo.hol) ? lineInfo.hol : cursor -4;
+        this.setSelectionRange(newCursorAt, newCursorAt);
     } else if (evt.keyCode == 13) { // Enter
-        if (lineInfo.length === 0) return true;
         var match = lineInfo.text.match(/^(\s*[*+-] ).*$/);
         if (match == null) return true;
 
