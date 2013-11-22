@@ -1,9 +1,7 @@
-onload(function () {
-    var textareas = document.getElementsByTagName("textarea");
-    for (var i = 0; i < textareas.length; i++) {
-        textareas[i].onkeypress = mdmode;
-    }
-});
+var textareas = document.getElementsByTagName("textarea");
+for (var i = 0; i < textareas.length; i++) {
+    textareas[i].onkeypress = mdmode;
+}
 
 function mdmode(evt) {
     if (this.selectionStart != this.selectionEnd) {
@@ -59,14 +57,4 @@ function getLineInfo(text, cursor) {
         re.lastIndex++;
     }
     return {};
-}
-
-function onload(callback) {
-    var id = setInterval(function() {
-        if (document.readyState == "complete" // load
-           || document.readyState == "interactive") { // DOMContentLoaded
-            callback();
-            clearInterval(id);
-        }
-    }, 500);
 }
