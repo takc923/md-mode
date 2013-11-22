@@ -24,7 +24,16 @@ function mdmode(evt) {
         this.setSelectionRange(cursor + 4, cursor + 4);
     } else if (evt.keyCode == 21) { // C-u
         var match = lineInfo.text.match(/^(    \s*[*+-] ).*$/);
-        if (match == null) return true;
+        //TODO: refactor
+        if (match == null) {
+            var match = lineInfo.text.match(/^([*+-] ).*$/);
+            this.setSelectionRange(lineInfo.hol, lineInfo.hol + 3);
+            textEvent.initTextEvent("textInput", true, true, null, this.value[lineInfo.hol + 2]);
+            this.dispatchEvent(textEvent);
+            var newCursorAt = (cursor - 1 < lineInfo.hol) ? lineInfo.hol : cursor - 2;
+            this.setSelectionRange(newCursorAt, newCursorAt);
+            return false;
+        }
 
         this.setSelectionRange(lineInfo.hol, lineInfo.hol + 5);
         textEvent.initTextEvent("textInput", true, true, null, this.value[lineInfo.hol + 4]);
