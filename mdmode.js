@@ -41,11 +41,18 @@ function mdmode(evt) {
         var newCursorAt = (cursor - 4 < lineInfo.hol) ? lineInfo.hol : cursor -4;
         this.setSelectionRange(newCursorAt, newCursorAt);
     } else if (evt.keyCode == 13) { // Enter
-        var match = lineInfo.text.match(/^(\s*[*+-] ).*$/);
+        var match = lineInfo.text.match(/^(\s*[*+-]).*$/);
         if (match == null) return true;
+        if (lineInfo.hol + match[1].length > cursor) {
+            this.setSelectionRange(lineInfo.hol, lineInfo.hol);
+            textEvent.initTextEvent("textInput", true, true, null, "\n");
+            this.dispatchEvent(textEvent);
+            this.setSelectionRange(cursor + 1, cursor + 1);
+        } else {
+            textEvent.initTextEvent("textInput", true, true, null, "\n" + match[1] + " ");
+            this.dispatchEvent(textEvent);
+        }
 
-        textEvent.initTextEvent("textInput", true, true, null, "\n" + match[1]);
-        this.dispatchEvent(textEvent);
         return false;
     }
 }
