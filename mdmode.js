@@ -49,7 +49,9 @@ function mdmode(evt) {
             this.dispatchEvent(textEvent);
             this.setSelectionRange(cursor + 1, cursor + 1);
         } else {
-            textEvent.initTextEvent("textInput", true, true, null, "\n" + match[1] + " ");
+            var insertText = match[1];
+            if (lineInfo.hol + match[1].length != cursor) insertText += " ";
+            textEvent.initTextEvent("textInput", true, true, null, "\n" + insertText);
             this.dispatchEvent(textEvent);
         }
 
