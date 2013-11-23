@@ -23,23 +23,30 @@ function mdmode(evt) {
 
         this.setSelectionRange(cursor + 4, cursor + 4);
     } else if (evt.keyCode == 21) { // C-u
-        var match = lineInfo.text.match(/^(    \s*[*+-] ).*$/);
+        var match = lineInfo.text.match(/^(\s*)[*+-].*$/);
         //TODO: refactor
         if (match == null) {
-            var match = lineInfo.text.match(/^([*+-] ).*$/);
+            return true;
+        } else if (match[1].length == 0) {
+            // todo: refactor. ここ次のパターンのlength2と同じ動作
             this.setSelectionRange(lineInfo.hol, lineInfo.hol + 3);
             textEvent.initTextEvent("textInput", true, true, null, this.value[lineInfo.hol + 2]);
             this.dispatchEvent(textEvent);
-            var newCursorAt = (cursor - 1 < lineInfo.hol) ? lineInfo.hol : cursor - 2;
+            var newCursorAt = (cursor - 2 < lineInfo.hol) ? lineInfo.hol : cursor - 2;
             this.setSelectionRange(newCursorAt, newCursorAt);
-            return false;
+        } else if (match[1].length < 4) {
+            this.setSelectionRange(lineInfo.hol, lineInfo.hol + match[1].length + 1);
+            textEvent.initTextEvent("textInput", true, true, null, "*");
+            this.dispatchEvent(textEvent);
+            var newCursorAt = (cursor - match[1].length < lineInfo.hol) ? lineInfo.hol : cursor - match[1].length;
+            this.setSelectionRange(newCursorAt, newCursorAt);
+        } else {
+            this.setSelectionRange(lineInfo.hol, lineInfo.hol + 5);
+            textEvent.initTextEvent("textInput", true, true, null, this.value[lineInfo.hol + 4]);
+            this.dispatchEvent(textEvent);
+            var newCursorAt = (cursor - 4 < lineInfo.hol) ? lineInfo.hol : cursor - 4;
+            this.setSelectionRange(newCursorAt, newCursorAt);
         }
-
-        this.setSelectionRange(lineInfo.hol, lineInfo.hol + 5);
-        textEvent.initTextEvent("textInput", true, true, null, this.value[lineInfo.hol + 4]);
-        this.dispatchEvent(textEvent);
-        var newCursorAt = (cursor - 4 < lineInfo.hol) ? lineInfo.hol : cursor -4;
-        this.setSelectionRange(newCursorAt, newCursorAt);
     } else if (evt.keyCode == 13) { // Enter
         var match = lineInfo.text.match(/^(\s*[*+-]).*$/);
         if (match == null) return true;
